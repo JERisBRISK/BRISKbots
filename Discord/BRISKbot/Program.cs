@@ -69,9 +69,19 @@
                         {
                             var t = user.AddRoleAsync(roleToAdd);
                             t.Wait();
+
                             if (t.IsCompletedSuccessfully)
                             {
                                 Log(new LogMessage(LogSeverity.Info, "Reaction", $"[{user.Guild.Name}] Successfully added role [{SuperSubscriberRole}] to {user.Username}."));
+                            }
+
+                            var msg = $"{user.Mention}, thanks for being a {TwitchSubscriberRole}! You've been granted the **{roleToAdd.Name}** role!";
+                            t = arg3.Channel.SendMessageAsync(msg);
+                            t.Wait();
+
+                            if (!t.IsCompletedSuccessfully)
+                            {
+                                Log(new LogMessage(LogSeverity.Error, "Reaction", $"[{user.Guild.Name} {arg3.Channel.Name}] Unable to post message: {msg}"));
                             }
                         }
                         else
@@ -91,14 +101,14 @@
 
         private Task OnMessageUpdate(Cacheable<IMessage, ulong> arg1, SocketMessage arg2, ISocketMessageChannel arg3)
         {
-            var msg = new LogMessage(LogSeverity.Warning, "Update", $"{arg2.Author.Username} ({arg2.Channel.Name}): {arg2.Content}");
+            var msg = new LogMessage(LogSeverity.Warning, "Update", $"[{(arg2.Channel as SocketGuildChannel)?.Guild.Name ?? "<unknown>"}] {arg2.Author.Username} to #{arg2.Channel.Name}: {arg2.Content}");
             Log(msg);
             return Task.CompletedTask;
         }
 
         private Task OnMessageReceived(SocketMessage arg)
         {
-            var msg = new LogMessage(LogSeverity.Info, "Message", $"{arg.Author.Username} ({arg.Channel.Name}): {arg.Content}");
+            var msg = new LogMessage(LogSeverity.Info, "Message", $"[{(arg.Channel as SocketGuildChannel)?.Guild.Name ?? "<unknown>"}] {arg.Author.Username} to #{arg.Channel.Name}: {arg.Content}");
             Log(msg);
             return Task.CompletedTask;
         }
